@@ -2,7 +2,7 @@ import got from 'got';
 import chalk from 'chalk';
 import { Command } from './command.interface.js';
 import { MockServerData } from '../../shared/types/index.js';
-import { TSVOfferGenerator } from '../../shared/libs/offer-generation/tsv-offer-generatoк.js';
+import { TSVOfferGenerator } from '../../shared/libs/offer-generation/tsv-offer-generator.js';
 import { getErrorMessage } from '../../shared/helpers/common.js';
 import { TSVFileWriter } from '../../shared/libs/file-writer/tsv-file-writer.js';
 
