@@ -1,5 +1,6 @@
-import {User} from './user.type.js';
-import {City} from './city.type.js';
+import { User } from './user.type.js';
+import { Coordinates } from './coordinates.type.js';
+import { CityName } from './city-name.enum.js';
 
 export enum Convenience {
   Breakfast = 'Breakfast',
@@ -22,7 +23,7 @@ export type Offer = {
   title: string;
   description: string;
   postDate: Date;
-  city: City;
+  city: CityName;
   previewPath: string;
   images: string[];
   isPremium: boolean;
@@ -35,6 +36,5 @@ export type Offer = {
   conveniences: Convenience[];
   author: User;
   commentsCount: number;
-  latitude: number;
-  longitude: number;
+  coordinates: Coordinates;
 }
