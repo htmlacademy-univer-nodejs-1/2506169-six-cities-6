@@ -1,9 +1,13 @@
+import { injectable } from 'inversify';
 import { Command } from './command.interface.js';
 import chalk from 'chalk';
+
+@injectable()
 export class HelpCommand implements Command {
   public getName(): string {
     return '--help';
   }
+
   public async execute(..._parameters: string[]): Promise<void> {
     console.info(chalk.greenBright(`
         Программа для подготовки данных для REST API сервера.
