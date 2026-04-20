@@ -1,0 +1,80 @@
+import { DocumentType } from '@typegoose/typegoose';
+import { Convenience, Offer, OfferType, UserType, CityName } from '../types/index.js';
+import { Cities } from '../constans/cities.js';
+import { OfferEntity } from '../modules/offer/offer.entity.js';
+
+export function createOffer(offerData: string): Offer {
+  const [
+    title,
+    description,
+    postDate,
+    city,
+    previewPath,
+    images,
+    isPremium,
+    isFavorite,
+    rating,
+    type,
+    roomsCount,
+    guestsCount,
+    price,
+    conveniences,
+    authorName,
+    authorEmail,
+    authorAvatarPath,
+    authorPassword,
+    authorType,
+    commentsCount,
+    coordinates,
+  ] = offerData.replace('\n', '').split('\t');
+
+  const author = {
+    name: authorName,
+    email: authorEmail,
+    avatar: authorAvatarPath,
+    password: authorPassword,
+    type: UserType[authorType as keyof typeof UserType]
+  };
+
+  const offerCoordinates = {
+    latitude: Number.parseFloat(coordinates.split(',')[0]),
+    longitude: Number.parseFloat(coordinates.split(',')[1])
+  };
+
+  return {
+    title,
+    description,
+    postDate: new Date(postDate),
+    city: CityName[city as keyof typeof CityName],
+    previewPath,
+    images: images.split(','),
+    isPremium: isPremium === 'true',
+    isFavorite: isFavorite === 'true',
+    rating: Number.parseFloat(rating),
+    type: OfferType[type as keyof typeof OfferType],
+    roomsCount: Number.parseInt(roomsCount, 10),
+    guestsCount: Number.parseInt(guestsCount, 10),
+    price: Number.parseInt(price, 10),
+    conveniences: conveniences.split(',').map((convenience) => Convenience[convenience as keyof typeof Convenience]),
+    author,
+    commentsCount: Number.parseInt(commentsCount, 10),
+    coordinates: offerCoordinates
+  };
+}
+
+export function prepareOffer(offer: DocumentType<OfferEntity>) {
+  const plain = offer.toObject() as OfferEntity;
+  const city = Cities[plain.city];
+
+  return {
+    ...plain,
+    id: String(offer._id),
+    city: {
+      name: city.name,
+      location: {
+        latitude: city.latitude,
+        longitude: city.longitude,
+      },
+    },
+  };
+}
