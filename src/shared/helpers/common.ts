@@ -1,106 +1,29 @@
-import { Convenience, Offer, OfferType, UserType, CityName } from '../types/index.js';
-import { inject, injectable } from 'inversify';
-import { Logger } from '../libs/logger/index.js';
-import { Config, RestSchema } from '../libs/config/index.js';
-import { Component } from '../types/index.js';
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 
-
-export function generateRandomValue(min:number, max: number, numAfterDigit = 0) {
+export function generateRandomValue(min: number, max: number, numAfterDigit = 0): number {
   return +((Math.random() * (max - min)) + min).toFixed(numAfterDigit);
 }
 
-
-export function getCurrentModuleDirectoryPath(): string {
-  const filepath = fileURLToPath(import.meta.url);
-  return dirname(filepath);
-}
-
-export function getRandomItems<T>(items: T[]):T[] {
+export function getRandomItems<T>(items: T[]): T[] {
   const startPosition = generateRandomValue(0, items.length - 1);
   const endPosition = startPosition + generateRandomValue(startPosition, items.length);
   return items.slice(startPosition, endPosition);
 }
 
-export function getRandomItem<T>(items: T[]):T {
+export function getRandomItem<T>(items: T[]): T {
   return items[generateRandomValue(0, items.length - 1)];
-}
-
-@injectable()
-export class RestApplication {
-  constructor(
-    @inject(Component.Logger) private readonly logger: Logger,
-    @inject(Component.Config) private readonly config: Config<RestSchema>,
-  ) { }
-
-  public async init(): Promise<void> {
-    this.logger.info('Application initialization');
-    this.logger.info(`Get value from env $PORT: ${this.config.get('PORT')}`);
-    this.logger.info(`Get value from env $SALT: ${this.config.get('SALT')}`);
-    this.logger.info(`Get value from env $DB_HOST: ${this.config.get('DB_HOST')}`);
-  }
-}
-
-export function createOffer(offerData: string): Offer {
-  const [
-    title,
-    description,
-    postDate,
-    city,
-    previewPath,
-    images,
-    isPremium,
-    isFavorite,
-    rating,
-    type,
-    roomsCount,
-    guestsCount,
-    price,
-    conveniences,
-    authorName,
-    authorEmail,
-    authorAvatarPath,
-    authorPassword,
-    authorType,
-    commentsCount,
-    coordinates,
-  ] = offerData.replace('\n', '').split('\t');
-
-  const author = {
-    name: authorName,
-    email: authorEmail,
-    avatar: authorAvatarPath,
-    password: authorPassword,
-    type: UserType[authorType as keyof typeof UserType]
-  };
-
-  const offerCoordinates = {
-    latitude: Number.parseFloat(coordinates.split(',')[0]),
-    longitude: Number.parseFloat(coordinates.split(',')[1])
-  };
-
-  return {
-    title,
-    description,
-    postDate: new Date(postDate),
-    city: CityName[city as keyof typeof CityName],
-    previewPath,
-    images: images.split(','),
-    isPremium: isPremium === 'true',
-    isFavorite: isFavorite === 'true',
-    rating: Number.parseFloat(rating),
-    type: OfferType[type as keyof typeof OfferType],
-    roomsCount: Number.parseInt(roomsCount, 10),
-    guestsCount: Number.parseInt(guestsCount, 10),
-    price: Number.parseInt(price, 10),
-    conveniences: conveniences.split(',').map((convenience) => Convenience[convenience as keyof typeof Convenience]),
-    author,
-    commentsCount: Number.parseInt(commentsCount, 10),
-    coordinates: offerCoordinates
-  };
 }
 
 export function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : '';
+}
+
+export function fillDTO<T, V>(someDto: ClassConstructor<T>, plainObject: V) {
+  return plainToInstance(someDto, plainObject, { excludeExtraneousValues: true });
+}
+
+export function createErrorObject(message: string) {
+  return {
+    error: message,
+  };
 }
